@@ -2,24 +2,32 @@ package kz.eospatial.GeoForestry.controllers;
 
 import jakarta.validation.Valid;
 import kz.eospatial.GeoForestry.dto.ForestryDto;
+import kz.eospatial.GeoForestry.exeptions.UserAlreadyExistsException;
 import kz.eospatial.GeoForestry.services.ForestryService;
+import kz.eospatial.GeoForestry.user.UserService;
+import kz.eospatial.GeoForestry.user.Users;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
+@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SUPER_ADMIN')")
 public class AdminController {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
     private final ForestryService forestryService;
+    private final UserService userService;
 
-    public AdminController(ForestryService forestryService) {
+    public AdminController(ForestryService forestryService, UserService userService) {
         this.forestryService = forestryService;
+        this.userService = userService;
     }
 
     @PostMapping("/forestries")
@@ -70,5 +78,16 @@ public class AdminController {
         }
         logger.info("Forestry deleted with ID: {}", id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/addAdmin")
+    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
+    public ResponseEntity<?> addAdmin(@Valid @RequestBody Users admin) {
+        try {
+            Users createdAdmin = userService.addUser(admin.getUsername(), admin.getEmail(), admin.getPassword(), admin.getRole());
+            return new ResponseEntity<>(createdAdmin, HttpStatus.CREATED);
+        } catch (UserAlreadyExistsException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        }
     }
 }
