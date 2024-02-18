@@ -1,5 +1,6 @@
 package kz.eospatial.GeoForestry.services;
 
+import kz.eospatial.GeoForestry.models.TokenValidationResult;
 import kz.eospatial.GeoForestry.repo.ForestryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,18 +26,21 @@ public class TokenService {
         return token;
     }
 
-    public boolean validateToken(String token) {
-        boolean isValid = forestryRepository.findByToken(token)
+    public TokenValidationResult validateToken(String token) {
+        return forestryRepository.findByToken(token)
                 .map(forestry -> {
-                    boolean isTokenValid = forestry.getTokenExpirationDate() != null &&
-                            !forestry.getTokenExpirationDate().isBefore(LocalDate.now());
-                    log.info("Token validation for {}: {}", token, isTokenValid ? "valid" : "invalid");
-                    return isTokenValid;
+                    if (forestry.getTokenExpirationDate() != null &&
+                            !forestry.getTokenExpirationDate().isBefore(LocalDate.now())) {
+                        log.info("Token validation for {}: valid", token);
+                        return TokenValidationResult.valid();
+                    } else {
+                        log.warn("Token validation for {}: expired", token);
+                        return TokenValidationResult.expired();
+                    }
                 })
-                .orElse(false);
-        if (!isValid) {
-            log.warn("Invalid or expired token: {}", token);
-        }
-        return isValid;
+                .orElseGet(() -> {
+                    log.warn("Token validation for {}: not found", token);
+                    return TokenValidationResult.notFound();
+                });
     }
 }

@@ -1,6 +1,7 @@
 package kz.eospatial.GeoForestry.controllers;
 
 import kz.eospatial.GeoForestry.dto.ForestryDto;
+import kz.eospatial.GeoForestry.models.TokenValidationResult;
 import kz.eospatial.GeoForestry.services.ForestryService;
 import kz.eospatial.GeoForestry.services.TokenService;
 import org.slf4j.Logger;
@@ -29,12 +30,14 @@ public class ForestryController {
     }
 
     @GetMapping("/{token}")
-    public ResponseEntity<ForestryDto> getForestryByToken(@PathVariable String token) {
+    public ResponseEntity<?> getForestryByToken(@PathVariable String token) {
         log.info("Received request to retrieve forestry with token: {}", token);
 
-        if (!tokenService.validateToken(token)) {
+        TokenValidationResult validationResult = tokenService.validateToken(token);
+
+        if (!validationResult.isValid()) {
             log.warn("Token validation failed for token: {}", token);
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(validationResult.getMessage());
         }
 
         log.info("Token validation succeeded for token: {}", token);
@@ -49,4 +52,5 @@ public class ForestryController {
             return ResponseEntity.notFound().build();
         });
     }
+
 }
