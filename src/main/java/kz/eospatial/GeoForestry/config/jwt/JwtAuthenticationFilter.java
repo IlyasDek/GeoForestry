@@ -57,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader(HEADER_NAME);
         if (!StringUtils.hasText(authHeader) || !authHeader.startsWith(BEARER_PREFIX)) {
-            logger.warn("Отсутствует или невалидный заголовок Authorization");
+            logger.warn("Missing or invalid Authorization header");
             filterChain.doFilter(request, response);
             return;
         }
@@ -65,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwt = authHeader.substring(BEARER_PREFIX.length());
         try {
             String username = jwtService.extractUserName(jwt);
-            logger.info("Попытка аутентификации пользователя по токену: {}", username);
+            logger.info("Attempting authentication for token user: {}", username);
 
             if (StringUtils.hasText(username) && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -76,11 +76,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                    logger.info("Аутентификация пользователя {} прошла успешно", username);
+                    logger.info("Authentication successful for user: {}", username);
                 }
             }
         } catch (Exception e) {
-            logger.error("Ошибка при аутентификации пользователя по JWT: {}", e.getMessage());
+            logger.error("Error authenticating user by JWT: {}", e.getMessage());
         }
         filterChain.doFilter(request, response);
     }

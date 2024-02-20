@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kz.eospatial.GeoForestry.config.SignInRequest;
-import kz.eospatial.GeoForestry.config.jwt.AuthenticationService;
+import kz.eospatial.GeoForestry.services.AuthenticationService;
 import kz.eospatial.GeoForestry.config.jwt.JwtAuthenticationResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -29,16 +29,16 @@ public class AuthController {
 //        return authenticationService.signUp(request);
 //    }
 
-    @Operation(summary = "Авторизация пользователя")
+    @Operation(summary = "User authorization")
     @PostMapping("/sign-in")
     public JwtAuthenticationResponse signIn(@RequestBody @Valid SignInRequest request) {
-        logger.info("Авторизация пользователя: {}", request.getUsername());
+        logger.info("Attempting to authorize user: {}", request.getUsername()); // Logging the authorization attempt
         try {
             JwtAuthenticationResponse response = authenticationService.signIn(request);
-            logger.info("Авторизация пользователя {} прошла успешно", request.getUsername());
+            logger.info("User {} successfully authorized", request.getUsername()); // Successful authorization
             return response;
         } catch (Exception e) {
-            logger.error("Ошибка при авторизации пользователя {}: {}", request.getUsername(), e.getMessage());
+            logger.error("Error authorizing user {}: {}", request.getUsername(), e.toString()); // Detailed error logging
             throw e;
         }
     }

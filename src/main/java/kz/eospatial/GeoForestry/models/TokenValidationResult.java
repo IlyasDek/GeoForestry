@@ -1,13 +1,14 @@
 package kz.eospatial.GeoForestry.models;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
 public class TokenValidationResult {
     private final boolean valid;
     private final String message;
-
-    private TokenValidationResult(boolean valid, String message) {
-        this.valid = valid;
-        this.message = message;
-    }
 
     public static TokenValidationResult valid() {
         return new TokenValidationResult(true, "Token is valid.");
@@ -23,9 +24,5 @@ public class TokenValidationResult {
 
     public boolean isValid() {
         return valid;
-    }
-
-    public String getMessage() {
-        return message;
     }
 }

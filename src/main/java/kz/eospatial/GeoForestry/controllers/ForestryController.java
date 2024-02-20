@@ -52,5 +52,4 @@ public class ForestryController {
             return ResponseEntity.notFound().build();
         });
     }
-
 }

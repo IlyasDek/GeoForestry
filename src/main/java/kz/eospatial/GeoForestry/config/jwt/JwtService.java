@@ -43,10 +43,10 @@ public class JwtService {
         try {
             final String username = extractUserName(token);
             boolean valid = username.equals(userDetails.getUsername()) && !isTokenExpired(token);
-            logger.info("Проверка валидности токена для пользователя {}: {}", username, valid);
+//            logger.info("Token validity check for user {}: {}", username, valid);
             return valid;
         } catch (Exception e) {
-            logger.error("Ошибка при проверке валидности токена: {}", e.getMessage());
+            logger.error("Error checking token validity: {}", e.getMessage());
             return false;
         }
     }
@@ -82,7 +82,7 @@ public class JwtService {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
-            logger.error("Ошибка при извлечении claims из JWT: {}", e.getMessage());
+            logger.error("Error when extracting claims from JWT: {}", e.getMessage());
             throw e;
         }
     }

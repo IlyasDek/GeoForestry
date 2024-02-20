@@ -1,6 +1,8 @@
-package kz.eospatial.GeoForestry.config.jwt;
+package kz.eospatial.GeoForestry.services;
 
 import kz.eospatial.GeoForestry.config.SignInRequest;
+import kz.eospatial.GeoForestry.config.jwt.JwtAuthenticationResponse;
+import kz.eospatial.GeoForestry.config.jwt.JwtService;
 import kz.eospatial.GeoForestry.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;

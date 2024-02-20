@@ -7,21 +7,21 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-@Schema(description = "Запрос на регистрацию")
+@Schema(description = "Registration request")
 public class SignUpRequest {
 
-    @Schema(description = "Имя пользователя", example = "Jon")
-    @Size(min = 5, max = 50, message = "Имя пользователя должно содержать от 5 до 50 символов")
-    @NotBlank(message = "Имя пользователя не может быть пустыми")
+    @Schema(description = "User Name", example = "Jon")
+    @Size(min = 5, max = 50, message = "The username must be between 5 and 50 characters long")
+    @NotBlank(message = "The username cannot be blank")
     private String username;
 
-    @Schema(description = "Адрес электронной почты", example = "jondoe@gmail.com")
-    @Size(min = 5, max = 255, message = "Адрес электронной почты должен содержать от 5 до 255 символов")
-    @NotBlank(message = "Адрес электронной почты не может быть пустыми")
-    @Email(message = "Email адрес должен быть в формате user@example.com")
+    @Schema(description = "E-mail address", example = "jondoe@gmail.com")
+    @Size(min = 5, max = 255, message = "The email address must contain between 5 and 255 characters")
+    @NotBlank(message = "The email address cannot be blank")
+    @Email(message = "Email address should be in the format user@example.com")
     private String email;
 
-    @Schema(description = "Пароль", example = "my_1secret1_password")
-    @Size(max = 255, message = "Длина пароля должна быть не более 255 символов")
+    @Schema(description = "Password", example = "my_1secret1_password")
+    @Size(max = 255, message = "Password length should be no more than 255 characters")
     private String password;
 }

@@ -44,21 +44,7 @@ public class UserService implements UserDetailsService {
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
-        user.setRole(role); // Установка роли в зависимости от параметра
-        return save(user);
-    }
-
-
-    public Users create(Users user) {
-        if (repository.existsByUsername(user.getUsername())) {
-            throw new UserAlreadyExistsException("Пользователь с таким именем уже существует");
-        }
-
-        if (repository.existsByEmail(user.getEmail())) {
-            throw new UserAlreadyExistsException("Пользователь с таким email уже существует");
-        }
-
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // Хеширование пароля перед сохранением
+        user.setRole(role);
         return save(user);
     }
 
