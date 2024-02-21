@@ -1,9 +1,6 @@
 package kz.eospatial.GeoForestry.controllers;
 
-import kz.eospatial.GeoForestry.dto.ForestryDto;
-import kz.eospatial.GeoForestry.models.TokenValidationResult;
-import kz.eospatial.GeoForestry.services.ForestryService;
-import kz.eospatial.GeoForestry.services.TokenService;
+import kz.eospatial.GeoForestry.facades.ForestryFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/forestry")
@@ -21,35 +17,14 @@ public class ForestryController {
 
     private static final Logger log = LoggerFactory.getLogger(ForestryController.class);
 
-    private final ForestryService forestryService;
-    private final TokenService tokenService;
+    private final ForestryFacade forestryFacade;
 
-    public ForestryController(ForestryService forestryService, TokenService tokenService) {
-        this.forestryService = forestryService;
-        this.tokenService = tokenService;
+    public ForestryController(ForestryFacade forestryFacade) {
+        this.forestryFacade = forestryFacade;
     }
 
     @GetMapping("/{token}")
     public ResponseEntity<?> getForestryByToken(@PathVariable String token) {
-        log.info("Received request to retrieve forestry with token: {}", token);
-
-        TokenValidationResult validationResult = tokenService.validateToken(token);
-
-        if (!validationResult.isValid()) {
-            log.warn("Token validation failed for token: {}", token);
-            return ResponseEntity.badRequest().body(validationResult.getMessage());
-        }
-
-        log.info("Token validation succeeded for token: {}", token);
-        Optional<ForestryDto> forestryDto = forestryService.getForestryByToken(token);
-
-        return forestryDto.map(dto -> {
-            log.info("Forestry found with token: {}", token);
-            ForestryDto responseDto = new ForestryDto(dto.getName(), dto.getMapStyleUrl(), dto.getBoundaries(), dto.getCenter(), dto.getMapBoxToken(), dto.getTokenExpirationDate());
-            return ResponseEntity.ok(responseDto);
-        }).orElseGet(() -> {
-            log.warn("No forestry found with token: {}", token);
-            return ResponseEntity.notFound().build();
-        });
+        return forestryFacade.getForestryByToken(token);
     }
 }

@@ -1,6 +1,5 @@
 package kz.eospatial.GeoForestry.user;
 
-import kz.eospatial.GeoForestry.controllers.AdminController;
 import kz.eospatial.GeoForestry.enums.Role;
 import kz.eospatial.GeoForestry.exeptions.UserAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,7 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
@@ -61,7 +60,4 @@ public class UserService implements UserDetailsService {
                     return new UsernameNotFoundException("Пользователь не найден");
                 });
     }
-
-
-
 }
