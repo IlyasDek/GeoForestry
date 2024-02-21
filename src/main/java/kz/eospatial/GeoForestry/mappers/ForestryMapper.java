@@ -11,7 +11,7 @@ public interface ForestryMapper {
 
     ForestryMapper INSTANCE = Mappers.getMapper(ForestryMapper.class);
 
-    @Mapping(target = "token", ignore = true)
+//    @Mapping(target = "token", ignore = true)
     Forestry toModel(ForestryDto forestryDto);
 
     ForestryDto toDto(Forestry forestry);

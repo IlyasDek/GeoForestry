@@ -4,12 +4,15 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import kz.eospatial.GeoForestry.models.GeoCoordinate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.URL;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -24,11 +27,11 @@ public class ForestryDto {
     @URL(message = "Map style URL must be a valid URL")
     private String mapStyleUrl;
 
-    @NotNull(message = "Latitude cannot be null")
-    private Double latitude;
+//    @NotNull(message = "Boundaries cannot be null")
+//    private List<GeoCoordinate> boundaries;
 
-    @NotNull(message = "Longitude cannot be null")
-    private Double longitude;
+    @NotNull(message = "Center cannot be null")
+    private GeoCoordinate center;;
 
     @NotNull(message = "Token expiration date cannot be null")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
