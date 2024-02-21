@@ -185,13 +185,19 @@ public class AdminController {
         }
     }
 
-
-
     @GetMapping("/forestries/byTokenExpiration")
-    public ResponseEntity<List<ForestryDto>> getForestriesByTokenExpirationDate(@RequestParam LocalDate date) {
-        logger.info("Fetching forestries with token expiration date: {}", date);
-        List<ForestryDto> forestries = forestryService.getForestriesByTokenExpirationDate(date);
-        logger.info("Forestries retrieved successfully for token expiration date: {}", date);
+    public ResponseEntity<List<ForestryDto>> getForestriesByTokenExpirationDate(
+            @RequestParam(required = false) LocalDate date,
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate) {
+        if (date != null) {
+            // Если задана конкретная дата, используем её как начальную и конечную дату
+            startDate = date;
+            endDate = date;
+        }
+        logger.info("Fetching forestries with token expiration date range: {} to {}", startDate, endDate);
+        List<ForestryDto> forestries = forestryService.getForestriesByTokenExpirationDate(startDate, endDate);
+        logger.info("Forestries retrieved successfully for token expiration date range: {} to {}", startDate, endDate);
         return ResponseEntity.ok(forestries);
     }
 }

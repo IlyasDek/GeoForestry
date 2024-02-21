@@ -20,7 +20,6 @@ public class DataInitializer implements CommandLineRunner {
         this.passwordEncoder = passwordEncoder;
     }
 
-
     @Override
     public void run(String... args) {
         Optional<Users> existingAdmin = userRepository.findByUsername("g_admin");

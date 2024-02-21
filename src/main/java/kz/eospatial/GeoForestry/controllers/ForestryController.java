@@ -45,7 +45,7 @@ public class ForestryController {
 
         return forestryDto.map(dto -> {
             log.info("Forestry found with token: {}", token);
-            ForestryDto responseDto = new ForestryDto(dto.getName(), dto.getMapStyleUrl(), dto.getLatitude(), dto.getLongitude(), dto.getTokenExpirationDate());
+            ForestryDto responseDto = new ForestryDto(dto.getName(), dto.getMapStyleUrl(), dto.getBoundaries(), dto.getCenter(), dto.getMapBoxToken(), dto.getTokenExpirationDate());
             return ResponseEntity.ok(responseDto);
         }).orElseGet(() -> {
             log.warn("No forestry found with token: {}", token);
