@@ -78,11 +78,7 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 			<version>3.2.1</version>
 		</dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>0.11.5</version>
-        </dependency>
+
 
 		<dependency>
 			<groupId>org.springdoc</groupId>
@@ -112,7 +108,18 @@
 	</dependencies>
 
 	<build>
+		<finalName>GeoForestry</finalName>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M5</version>
+				<configuration>
+					<environmentVariables>
+						<SPRING_PROFILES_ACTIVE>test</SPRING_PROFILES_ACTIVE>
+					</environmentVariables>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>

@@ -23,7 +23,12 @@ public interface ForestryMapper {
 
     @Mapping(target = "boundaries", ignore = true)
     @Mapping(target = "center", ignore = true)
+    @Mapping(target = "token", ignore = true)
     ForestryDto toDto(Forestry forestry);
+
+    @Mapping(target = "boundaries", ignore = true)
+    @Mapping(target = "center", ignore = true)
+    ForestryDto toDtoWithToken(Forestry forestry);
 
     @AfterMapping
     default void toModelPostMapping(ForestryDto dto, @MappingTarget Forestry entity) {

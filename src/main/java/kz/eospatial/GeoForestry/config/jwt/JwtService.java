@@ -43,7 +43,6 @@ public class JwtService {
         try {
             final String username = extractUserName(token);
             boolean valid = username.equals(userDetails.getUsername()) && !isTokenExpired(token);
-//            logger.info("Token validity check for user {}: {}", username, valid);
             return valid;
         } catch (Exception e) {
             logger.error("Error checking token validity: {}", e.getMessage());

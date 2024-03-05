@@ -1,0 +1,40 @@
+spring:
+  main:
+    allow-circular-references: true
+  datasource:
+    url: jdbc:postgresql://localhost:5433/geo_forestry_db
+    username: postgres
+    password: 123
+  jpa:
+    hibernate:
+      properties:
+        hibernate:
+          format_sql: true
+          use_sql_comments: true
+          type: trace
+      ddl-auto: update
+    show-sql: true
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+        jdbc:
+          core: DEBUG
+          datasource: DEBUG
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+
+server:
+  port: 8083
+
+jwt:
+  token:
+    expiry: 86400000 # 24 часа в миллисекундах
+  signing:
+    key: 53A73E5F1C4E0A2D3B5F2D784E6A1B423D6F247D1F6E5C3A596D635A75327855

@@ -4,9 +4,6 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
-//@Data
-//@AllArgsConstructor
-//@NoArgsConstructor
 @Entity
 public class Forestry {
     @Id
@@ -15,6 +12,8 @@ public class Forestry {
 
     @Column(unique = true)
     private String name;
+
+    private String region;
     private String mapStyleUrl;
     @Column(length = 1000)
     private String boundaries;
@@ -23,24 +22,11 @@ public class Forestry {
     private String token;
     private LocalDate tokenExpirationDate;
 
-    @Override
-    public String toString() {
-        return "Forestry{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", mapStyleUrl='" + mapStyleUrl + '\'' +
-                ", boundaries='" + boundaries + '\'' +
-                ", center='" + center + '\'' +
-                ", mapBoxToken='" + mapBoxToken + '\'' +
-                ", token='" + token + '\'' +
-                ", tokenExpirationDate=" + tokenExpirationDate +
-                '}';
-    }
-
-    public Forestry(Long id, String name, String mapStyleUrl,
+    public Forestry(Long id, String name, String region, String mapStyleUrl,
                     String boundaries, String center, String mapBoxToken, String token, LocalDate tokenExpirationDate) {
         this.id = id;
         this.name = name;
+        this.region = region;
         this.mapStyleUrl = mapStyleUrl;
         this.boundaries = boundaries;
         this.center = center;
@@ -66,6 +52,14 @@ public class Forestry {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
     }
 
     public String getMapStyleUrl() {
@@ -114,5 +108,20 @@ public class Forestry {
 
     public void setTokenExpirationDate(LocalDate tokenExpirationDate) {
         this.tokenExpirationDate = tokenExpirationDate;
+    }
+
+    @Override
+    public String toString() {
+        return "Forestry{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", region='" + region + '\'' +
+                ", mapStyleUrl='" + mapStyleUrl + '\'' +
+                ", boundaries='" + boundaries + '\'' +
+                ", center='" + center + '\'' +
+                ", mapBoxToken='" + mapBoxToken + '\'' +
+                ", token='" + token + '\'' +
+                ", tokenExpirationDate=" + tokenExpirationDate +
+                '}';
     }
 }

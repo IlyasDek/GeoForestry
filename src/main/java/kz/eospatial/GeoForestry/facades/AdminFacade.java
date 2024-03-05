@@ -128,6 +128,20 @@ public class AdminFacade {
         }
     }
 
+    public ResponseEntity<?> getForestryByRegion(String region) {
+        logger.info("Fetching forestry with region: {}", region);
+        try {
+            ForestryDto forestryDto = forestryQueryService.getForestryByRegion(region);
+            return ResponseEntity.ok(forestryDto);
+        } catch (EntityNotFoundException e) {
+            logger.warn("Forestry not found with region: {}", region);
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            logger.error("Error fetching forestry with region: {}", region, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal server error occurred while fetching forestry"));
+        }
+    }
+
     public ResponseEntity<?> addAdmin(Users admin) {
         logger.info("Attempting to add new admin with username: {}", admin.getUsername());
         try {

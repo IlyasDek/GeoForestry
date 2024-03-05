@@ -40,7 +40,7 @@ public class ForestryFacade {
 
         return forestryDto.map(dto -> {
             log.info("Forestry found with token: {}", token);
-            ForestryDto responseDto = new ForestryDto(dto.getName(), dto.getMapStyleUrl(), dto.getBoundaries(), dto.getCenter(), dto.getMapBoxToken(), dto.getTokenExpirationDate());
+            ForestryDto responseDto = new ForestryDto(dto.getName(), dto.getRegion(), dto.getMapStyleUrl(), dto.getBoundaries(), dto.getCenter(), dto.getMapBoxToken(), dto.getTokenExpirationDate());
             return ResponseEntity.ok(responseDto);
         }).orElseGet(() -> {
             log.warn("No forestry found with token: {}", token);

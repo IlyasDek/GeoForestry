@@ -57,6 +57,7 @@ public class ForestryManagementService {
 
         // Обновление полей, не связанных с геоданными
         existingForestry.setName(forestryDto.getName());
+        existingForestry.setRegion(forestryDto.getRegion());
         existingForestry.setMapStyleUrl(forestryDto.getMapStyleUrl());
         existingForestry.setMapBoxToken(forestryDto.getMapBoxToken());
         existingForestry.setTokenExpirationDate(forestryDto.getTokenExpirationDate());

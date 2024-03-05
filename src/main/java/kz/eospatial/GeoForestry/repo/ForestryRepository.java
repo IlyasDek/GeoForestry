@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface ForestryRepository extends JpaRepository<Forestry, Long> {
     Optional<Forestry> findByToken(String token);
     Optional<Forestry> findByName(String name);
+    Optional<Forestry> findByRegion(String name);
     boolean existsByName(String name);
     void deleteByName(String name);
     List<Forestry> findAllByTokenExpirationDate(LocalDate date);

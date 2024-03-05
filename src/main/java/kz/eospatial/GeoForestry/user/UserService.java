@@ -32,11 +32,11 @@ public class UserService implements UserDetailsService {
     @Transactional
     public Users addUser(String username, String email, String password, Role role) {
         if (repository.existsByUsername(username)) {
-            throw new UserAlreadyExistsException("Пользователь с таким именем уже существует");
+            throw new UserAlreadyExistsException("User with this name already exists");
         }
 
         if (repository.existsByEmail(email)) {
-            throw new UserAlreadyExistsException("Пользователь с таким email уже существует");
+            throw new UserAlreadyExistsException("User with this email already exists");
         }
 
         Users user = new Users();
@@ -47,17 +47,27 @@ public class UserService implements UserDetailsService {
         return save(user);
     }
 
+//    @Override
+//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+//        logger.info("Попытка загрузки пользователя с именем: {}", username);
+//        return repository.findByUsername(username)
+//                .map(user -> new org.springframework.security.core.userdetails.User(
+//                        user.getUsername(),
+//                        user.getPassword(),
+//                        Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()))))
+//                .orElseThrow(() -> {
+//                    logger.warn("Пользователь с именем {} не найден", username);
+//                    return new UsernameNotFoundException("Пользователь не найден");
+//                });
+//    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        logger.info("Попытка загрузки пользователя с именем: {}", username);
         return repository.findByUsername(username)
                 .map(user -> new org.springframework.security.core.userdetails.User(
                         user.getUsername(),
                         user.getPassword(),
                         Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()))))
-                .orElseThrow(() -> {
-                    logger.warn("Пользователь с именем {} не найден", username);
-                    return new UsernameNotFoundException("Пользователь не найден");
-                });
+                .orElseThrow(() -> new UsernameNotFoundException("User with name " + username + " not found"));
     }
 }

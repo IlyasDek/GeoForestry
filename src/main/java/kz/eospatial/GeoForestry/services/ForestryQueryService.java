@@ -31,9 +31,11 @@ public class ForestryQueryService {
 
     public List<ForestryDto> getAllForestries() {
         log.info("Retrieving all forestries");
-        return forestryRepository.findAll().stream()
-                .map(forestryMapper::toDto)
+        List<ForestryDto> forestryDtos = forestryRepository.findAll().stream()
+                .map(forestryMapper::toDtoWithToken)
                 .collect(Collectors.toList());
+        log.info(forestryDtos.toString());
+        return forestryDtos;
     }
 
     public ForestryDto getForestryById(Long id) {
@@ -50,10 +52,19 @@ public class ForestryQueryService {
                 .orElseThrow(() -> new EntityNotFoundException("Forestry not found with name: " + name));
     }
 
+    public ForestryDto getForestryByRegion(String region) {
+        log.info("Retrieving forestry with region: {}", region);
+        return forestryRepository.findByRegion(region)
+                .map(forestryMapper::toDto)
+                .orElseThrow(() -> new EntityNotFoundException("Forestry not found with name: " + region));
+    }
+
     public Optional<ForestryDto> getForestryByToken(String token) {
         log.info("Retrieving forestry with token: {}", token);
-        return forestryRepository.findByToken(token)
+        Optional<ForestryDto> list = forestryRepository.findByToken(token)
                 .map(forestryMapper::toDto);
+        log.info(list.toString());
+        return list;
     }
 
     public List<ForestryDto> getForestriesByTokenExpirationDate(LocalDate startDate, LocalDate endDate) {
