@@ -29,22 +29,23 @@ public class TokenManagementService {
     }
 
 
-    public String regenerateTokenForForestry(String name) {
-        Forestry forestry = forestryRepository.findByName(name)
-                .orElseThrow(() -> new EntityNotFoundException("Forestry not found with name: " + name));
+    public String regenerateTokenForForestry(Long id, LocalDate newExpirationDate) {
+        Forestry forestry = forestryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Forestry not found with ID: " + id));
         String newToken = tokenService.generateToken();
         forestry.setToken(newToken);
+        forestry.setTokenExpirationDate(newExpirationDate);
         forestryRepository.save(forestry);
-        log.info("Regenerated token for forestry with name: {}", name);
+        log.info("Regenerated token with new expiration date for forestry with ID: {}", id);
         return newToken;
     }
 
-    public ForestryDto updateTokenExpirationDate(String name, LocalDate newExpirationDate) {
-        Forestry forestry = forestryRepository.findByName(name)
-                .orElseThrow(() -> new EntityNotFoundException("Forestry not found with name: " + name));
+    public ForestryDto updateTokenExpirationDate(Long id, LocalDate newExpirationDate) {
+        Forestry forestry = forestryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Forestry not found with ID: " + id));
         forestry.setTokenExpirationDate(newExpirationDate);
         Forestry updatedForestry = forestryRepository.save(forestry);
-        log.info("Updated token expiration date for forestry with name: {}", name);
+        log.info("Updated token expiration date for forestry with ID: {}", id);
         return forestryMapper.toDto(updatedForestry);
     }
 }

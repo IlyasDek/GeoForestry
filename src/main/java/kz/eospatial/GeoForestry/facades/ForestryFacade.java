@@ -29,7 +29,6 @@ public class ForestryFacade {
         log.info("Received request to retrieve forestry with token: {}", token);
 
         TokenValidationResult validationResult = tokenService.validateToken(token);
-
         if (!validationResult.isValid()) {
             log.warn("Token validation failed for token: {}", token);
             return ResponseEntity.badRequest().body(validationResult.getMessage());
@@ -40,8 +39,9 @@ public class ForestryFacade {
 
         return forestryDto.map(dto -> {
             log.info("Forestry found with token: {}", token);
-            ForestryDto responseDto = new ForestryDto(dto.getName(), dto.getRegion(), dto.getMapStyleUrl(), dto.getBoundaries(), dto.getCenter(), dto.getMapBoxToken(), dto.getTokenExpirationDate());
-            return ResponseEntity.ok(responseDto);
+            // Используйте метод маппера toDtoWithToken, если это необходимо для включения токена в DTO
+            // Если нет, просто используйте toDto как вы делали до этого
+            return ResponseEntity.ok(dto);
         }).orElseGet(() -> {
             log.warn("No forestry found with token: {}", token);
             return ResponseEntity.notFound().build();

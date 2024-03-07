@@ -10,6 +10,7 @@ import kz.eospatial.GeoForestry.repo.ForestryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,9 +54,17 @@ public class ForestryManagementService {
         return new AbstractMap.SimpleEntry<>(resultDto, generatedToken);
     }
 
-    public ForestryDto updateForestry(String name, ForestryDto forestryDto) {
-        Forestry existingForestry = forestryRepository.findByName(name)
-                .orElseThrow(() -> new EntityNotFoundException("Forestry not found with name: " + name));
+    public ForestryDto updateForestry(Long id, ForestryDto forestryDto) {
+        Forestry existingForestry = forestryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Forestry not found with ID: " + id));
+
+        if (!forestryDto.getName().equals(existingForestry.getName()) &&
+                forestryRepository.existsByName(forestryDto.getName())) {
+            throw new DataIntegrityViolationException(
+                    "The name of the forestry unit should be unique. A forestry with a name \""
+                            + forestryDto.getName() + "\" already exists.");
+        }
+
 
         // Обновление полей, не связанных с геоданными
         existingForestry.setName(forestryDto.getName());
@@ -65,7 +74,6 @@ public class ForestryManagementService {
         existingForestry.setTokenExpirationDate(forestryDto.getTokenExpirationDate());
 
         // Обновление геоданных
-        // Преобразование List<GeoCoordinate> и GeoCoordinate в строки и их установка
         String boundariesAsString = forestryDto.getBoundaries().stream()
                 .map(coord -> coord.getLatitude() + "," + coord.getLongitude())
                 .collect(Collectors.joining(";"));
@@ -78,21 +86,23 @@ public class ForestryManagementService {
         }
 
         Forestry updatedForestry = forestryRepository.save(existingForestry);
-        log.info("Forestry updated with name: {}", name);
+        log.info("Forestry updated with ID: {}", id);
 
         // Преобразование обратно в DTO для возврата
-        ForestryDto resultDto = forestryMapper.toDto(updatedForestry);
+        ForestryDto resultDto = forestryMapper.toDtoWithToken(updatedForestry);
         return resultDto;
     }
 
-    public boolean deleteForestryByName(String name) {
-        if (forestryRepository.existsByName(name)) {
-            forestryRepository.deleteByName(name);
-            log.info("Deleted forestry with name: {}", name);
-            return true;
-        }
-        log.warn("Attempted to delete forestry with name: {}, but it does not exist", name);
-        return false;
+    public boolean deleteForestryById(Long id) {
+        return forestryRepository.findById(id)
+                .map(forestry -> {
+                    forestryRepository.delete(forestry);
+                    log.info("Deleted forestry with ID: {}", id);
+                    return true;
+                }).orElseGet(() -> {
+                    log.warn("Attempted to delete forestry with ID: {}, but it does not exist", id);
+                    return false;
+                });
     }
 }
 

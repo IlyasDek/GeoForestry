@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.List;
@@ -61,37 +63,32 @@ public class AdminFacade {
         }
     }
 
-    public ResponseEntity<?> updateForestry(String name, ForestryDto forestryDto) {
-        logger.info("Updating forestry with name: {}", name);
+    public ResponseEntity<?> updateForestry(Long id, ForestryDto forestryDto) {
+        logger.info("Updating forestry with ID: {}", id);
         try {
-            ForestryDto updatedForestryDto = forestryManagementService.updateForestry(name, forestryDto);
+            ForestryDto updatedForestryDto = forestryManagementService.updateForestry(id, forestryDto);
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Forestry updated successfully");
             response.put("forestry", updatedForestryDto);
             return ResponseEntity.ok(response);
         } catch (EntityNotFoundException e) {
-            logger.warn("Forestry not found for update with name: {}", name);
+            logger.warn("Forestry not found for update with ID: {}", id);
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            logger.error("Error updating forestry with name: {}", name, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal server error occurred while updating forestry"));
+            logger.error("Error updating forestry with ID: {}, error: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
     }
 
-    public ResponseEntity<?> deleteForestryByName(String name) {
-        logger.info("Deleting forestry with name: {}", name);
-        boolean isDeleted = forestryManagementService.deleteForestryByName(name);
+    public ResponseEntity<?> deleteForestryById(Long id) {
+        logger.info("Deleting forestry with ID: {}", id);
+        boolean isDeleted = forestryManagementService.deleteForestryById(id);
         if (!isDeleted) {
-            logger.warn("Forestry not found for deletion with name: {}", name);
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Not Found");
-            errorResponse.put("message", "Forestry not found for deletion with name: " + name);
-            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+            logger.warn("Forestry not found for deletion with ID: {}", id);
+            return ResponseEntity.notFound().build();
         }
-        logger.info("Forestry deleted with name: {}", name);
-        Map<String, String> successResponse = new HashMap<>();
-        successResponse.put("message", "Forestry deleted successfully with name: " + name);
-        return new ResponseEntity<>(successResponse, HttpStatus.OK);
+        logger.info("Forestry deleted with ID: {}", id);
+        return ResponseEntity.ok(Map.of("message", "Forestry deleted successfully"));
     }
 
     public ResponseEntity<List<ForestryDto>> getAllForestries() {
@@ -164,37 +161,44 @@ public class AdminFacade {
         }
     }
 
-    public ResponseEntity<?> regenerateTokenForForestry(String name) {
-        logger.info("Attempting to regenerate token for forestry named: {}", name);
+    public ResponseEntity<?> regenerateTokenForForestry(Long id, String newExpirationDateString) {
+        logger.info("Attempting to regenerate token for forestry with ID: {} and new expiration date: {}", id, newExpirationDateString);
         try {
-            String newToken = tokenManagementService.regenerateTokenForForestry(name);
-            logger.info("Token regenerated successfully for forestry named: {}. New Token: {}", name, newToken);
+            LocalDate newExpirationDate = LocalDate.parse(newExpirationDateString, DateTimeFormatter.ISO_LOCAL_DATE);
+            String newToken = tokenManagementService.regenerateTokenForForestry(id, newExpirationDate);
+            logger.info("Token regenerated successfully for forestry with ID: {}. New Token: {}, New Expiration Date: {}",
+                    id, newToken, newExpirationDate);
 
             Map<String, Object> response = new HashMap<>();
-            response.put("message", "Token regenerated successfully.");
+            response.put("message", "Token regenerated successfully with new expiration date.");
             response.put("newToken", newToken);
+            response.put("newExpirationDate", newExpirationDate);
 
             return ResponseEntity.ok(response);
+        } catch (DateTimeParseException e) {
+            logger.error("Invalid date format for new expiration date: {}, error: {}", newExpirationDateString, e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid date format for new expiration date."));
         } catch (EntityNotFoundException e) {
-            logger.error("Forestry not found with name: {}, error: {}", name, e.getMessage());
+            logger.error("Forestry not found with ID: {}, error: {}", id, e.getMessage());
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            logger.error("Error regenerating token for forestry: {}, error: {}", name, e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal server error occurred while regenerating token"));
+            logger.error("Error regenerating token for forestry with ID: {}, error: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error",
+                    "Internal server error occurred while regenerating token"));
         }
     }
 
-    public ResponseEntity<?> updateTokenExpirationDate(String name, TokenExpirationUpdateRequest request) {
-        logger.info("Attempting to update token expiration date for forestry: {}", name);
+    public ResponseEntity<?> updateTokenExpirationDate(Long id, TokenExpirationUpdateRequest request) {
+        logger.info("Attempting to update token expiration date for forestry with ID: {}", id);
         try {
-            ForestryDto updatedForestry = tokenManagementService.updateTokenExpirationDate(name, request.getNewExpirationDate());
-            logger.info("Token expiration date updated successfully for forestry: {}", name);
+            ForestryDto updatedForestry = tokenManagementService.updateTokenExpirationDate(id, request.getNewExpirationDate());
+            logger.info("Token expiration date updated successfully for forestry with ID: {}", id);
             return ResponseEntity.ok(updatedForestry);
         } catch (EntityNotFoundException e) {
-            logger.error("Forestry not found with name: {}, error: {}", name, e.getMessage());
+            logger.error("Forestry not found with ID: {}, error: {}", id, e.getMessage());
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            logger.error("Error updating token expiration date for forestry: {}, error: {}", name, e.getMessage());
+            logger.error("Error updating token expiration date for forestry with ID: {}, error: {}", id, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal server error occurred while updating token expiration date"));
         }
     }

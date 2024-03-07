@@ -27,20 +27,20 @@ public class AdminController {
     }
 
     @PostMapping("/forestries")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SUPER_ADMIN')")
     public ResponseEntity<?> addForestry(@Valid @RequestBody ForestryDto forestryDto) {
         return adminFacade.addForestry(forestryDto);
     }
 
-    @PutMapping("/forestries/name/{name}/update")
-    public ResponseEntity<?> updateForestry(@PathVariable String name, @Valid @RequestBody ForestryDto forestryDto) {
-        return adminFacade.updateForestry(name, forestryDto);
+    @PutMapping("/forestries/{id}/update")
+    public ResponseEntity<?> updateForestry(@PathVariable Long id, @Valid @RequestBody ForestryDto forestryDto) {
+        System.out.println("UPDATE POINT");
+        return adminFacade.updateForestry(id, forestryDto);
     }
 
 
-    @DeleteMapping("/forestries/name/{name}")
-    public ResponseEntity<?> deleteForestryByName(@PathVariable String name) {
-        return adminFacade.deleteForestryByName(name);
+    @DeleteMapping("/forestries/{id}")
+    public ResponseEntity<?> deleteForestryById(@PathVariable Long id) {
+        return adminFacade.deleteForestryById(id);
     }
 
     @GetMapping("/forestries")
@@ -70,16 +70,16 @@ public class AdminController {
     }
 
 
-    @PatchMapping("/forestries/name/{name}/regenerateToken")
-    public ResponseEntity<?> regenerateToken(@PathVariable String name) {
-        return adminFacade.regenerateTokenForForestry(name);
+    @PatchMapping("/forestries/{id}/regenerateToken")
+    public ResponseEntity<?> regenerateToken(@PathVariable Long id, @RequestBody String newExpirationDateString) {
+        return adminFacade.regenerateTokenForForestry(id, newExpirationDateString);
     }
 
-
-    @PatchMapping("/forestries/name/{name}/updateTokenExpiration")
-    public ResponseEntity<?> updateTokenExpiration(@PathVariable String name, @RequestBody TokenExpirationUpdateRequest request) {
-        return adminFacade.updateTokenExpirationDate(name, request);
+    @PatchMapping("/forestries/{id}/updateTokenExpiration")
+    public ResponseEntity<?> updateTokenExpiration(@PathVariable Long id, @RequestBody TokenExpirationUpdateRequest request) {
+        return adminFacade.updateTokenExpirationDate(id, request);
     }
+
 
 
     @GetMapping("/forestries/byTokenExpiration")

@@ -14,6 +14,7 @@ public interface ForestryRepository extends JpaRepository<Forestry, Long> {
     Optional<Forestry> findByName(String name);
     Optional<Forestry> findByRegion(String name);
     boolean existsByName(String name);
+    boolean existsByNameAndIdNot(String name, Long id);
     void deleteByName(String name);
     List<Forestry> findAllByTokenExpirationDate(LocalDate date);
     List<Forestry> findAllByTokenExpirationDateBetween(LocalDate startDate, LocalDate endDate);
