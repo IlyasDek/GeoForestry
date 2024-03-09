@@ -2,7 +2,7 @@ package kz.eospatial.GeoForestry.controllers;
 
 import jakarta.validation.Valid;
 import kz.eospatial.GeoForestry.dto.ForestryDto;
-import kz.eospatial.GeoForestry.dto.TokenExpirationUpdateRequest;
+import kz.eospatial.GeoForestry.dto.TokenUpdateRequest;
 import kz.eospatial.GeoForestry.facades.AdminFacade;
 import kz.eospatial.GeoForestry.user.UserService;
 import kz.eospatial.GeoForestry.user.Users;
@@ -11,7 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -44,12 +43,12 @@ public class AdminController {
     }
 
     @GetMapping("/forestries")
-    public ResponseEntity<List<ForestryDto>> getAllForestries() {
+    public ResponseEntity<?> getAllForestries() {
         return adminFacade.getAllForestries();
     }
 
     @GetMapping("/forestries/id/{id}")
-    public ResponseEntity<ForestryDto> getForestryById(@PathVariable Long id) {
+    public ResponseEntity<?> getForestryById(@PathVariable Long id) {
         return adminFacade.getForestryById(id);
     }
 
@@ -69,21 +68,21 @@ public class AdminController {
         return adminFacade.addAdmin(admin);
     }
 
-
     @PatchMapping("/forestries/{id}/regenerateToken")
-    public ResponseEntity<?> regenerateToken(@PathVariable Long id, @RequestBody String newExpirationDateString) {
-        return adminFacade.regenerateTokenForForestry(id, newExpirationDateString);
+    public ResponseEntity<?> regenerateToken(@PathVariable Long id, @RequestBody TokenUpdateRequest tokenUpdateRequest) {
+        return adminFacade.regenerateTokenForForestry(id, tokenUpdateRequest);
     }
 
+
     @PatchMapping("/forestries/{id}/updateTokenExpiration")
-    public ResponseEntity<?> updateTokenExpiration(@PathVariable Long id, @RequestBody TokenExpirationUpdateRequest request) {
+    public ResponseEntity<?> updateTokenExpiration(@PathVariable Long id, @RequestBody TokenUpdateRequest request) {
         return adminFacade.updateTokenExpirationDate(id, request);
     }
 
 
 
     @GetMapping("/forestries/byTokenExpiration")
-    public ResponseEntity<List<ForestryDto>> getForestriesByTokenExpirationDate(
+    public ResponseEntity<?> getForestriesByTokenExpirationDate(
             @RequestParam(required = false) LocalDate date,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate) {

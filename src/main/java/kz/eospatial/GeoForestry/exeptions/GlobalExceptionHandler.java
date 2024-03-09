@@ -3,6 +3,8 @@ package kz.eospatial.GeoForestry.exeptions;
 import io.jsonwebtoken.JwtException;
 import jakarta.persistence.EntityNotFoundException;
 import org.hibernate.exception.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
         Map<String, Object> body = new LinkedHashMap<>();
@@ -31,6 +35,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex, WebRequest request) {
+        log.error("DataIntegrityViolationException caught: {}", ex.getMessage(), ex);
         String errorMessage = "Data integrity error. You may be trying to add duplicate data.";
         if (ex.getCause() instanceof ConstraintViolationException) {
             ConstraintViolationException cve = (ConstraintViolationException) ex.getCause();
@@ -46,7 +51,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, WebRequest request) {
-        // Логирование ошибки для отладки
         Throwable mostSpecificCause = ex.getMostSpecificCause();
         String errorMessage;
         if (mostSpecificCause != null) {
@@ -57,7 +61,6 @@ public class GlobalExceptionHandler {
             errorMessage = ex.getMessage();
         }
 
-        // Возвращение информативного сообщения клиенту
         Map<String, String> body = new HashMap<>();
         body.put("error", "JSON parse error");
         body.put("message", errorMessage);
@@ -100,11 +103,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex) {
+        log.info("EntityNotFoundException caught: {}", ex.getMessage());
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("error", "Not Found");
         body.put("message", ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
+
 }
 

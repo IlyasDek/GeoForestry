@@ -7,9 +7,11 @@ import kz.eospatial.GeoForestry.services.TokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -31,7 +33,10 @@ public class ForestryFacade {
         TokenValidationResult validationResult = tokenService.validateToken(token);
         if (!validationResult.isValid()) {
             log.warn("Token validation failed for token: {}", token);
-            return ResponseEntity.badRequest().body(validationResult.getMessage());
+            return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Bad Request",
+                    "message", validationResult.getMessage()
+            ));
         }
 
         log.info("Token validation succeeded for token: {}", token);
@@ -39,12 +44,17 @@ public class ForestryFacade {
 
         return forestryDto.map(dto -> {
             log.info("Forestry found with token: {}", token);
-            // Используйте метод маппера toDtoWithToken, если это необходимо для включения токена в DTO
-            // Если нет, просто используйте toDto как вы делали до этого
-            return ResponseEntity.ok(dto);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Forestry found successfully",
+                    "forestry", dto
+            ));
         }).orElseGet(() -> {
             log.warn("No forestry found with token: {}", token);
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "error", "Not Found",
+                    "message", "No forestry found with token: " + token
+            ));
         });
     }
+
 }
