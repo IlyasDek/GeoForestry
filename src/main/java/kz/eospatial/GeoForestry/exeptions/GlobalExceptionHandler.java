@@ -10,7 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
@@ -111,5 +113,24 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("error", "Validation Error");
+
+        // Сбор деталей об ошибках валидации
+        Map<String, String> errors = new LinkedHashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(fieldError ->
+                errors.put(fieldError.getField(), fieldError.getDefaultMessage()));
+        ex.getBindingResult().getGlobalErrors().forEach(objectError ->
+                errors.put(objectError.getObjectName(), objectError.getDefaultMessage()));
+
+        body.put("message", "Validation error occurred");
+        body.put("details", errors);
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
 }
 
