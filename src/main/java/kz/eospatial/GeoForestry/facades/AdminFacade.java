@@ -188,6 +188,17 @@ public class AdminFacade {
         }
     }
 
+    public ResponseEntity<?> updateUserPassword(Long userId, String newPassword) {
+        try {
+            userService.updatePassword(userId, newPassword);
+
+            return ResponseEntity.ok(Map.of("message", "Password updated successfully."));
+        } catch (Exception e) {
+            log.error("Error updating password: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error",
+                    "Internal server error occurred while updating password", "message", e.getMessage()));
+        }
+    }
 
     public ResponseEntity<?> regenerateTokenForForestry(Long id, TokenUpdateRequest tokenUpdateRequest) {
         log.info("Attempting to regenerate token for forestry with ID: {} and new expiration date: {}", id,
