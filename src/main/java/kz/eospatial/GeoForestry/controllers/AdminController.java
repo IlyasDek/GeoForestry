@@ -3,6 +3,7 @@ package kz.eospatial.GeoForestry.controllers;
 import jakarta.validation.Valid;
 import kz.eospatial.GeoForestry.dto.ForestryDto;
 import kz.eospatial.GeoForestry.dto.TokenUpdateRequest;
+import kz.eospatial.GeoForestry.dto.UpdatePasswordRequest;
 import kz.eospatial.GeoForestry.facades.AdminFacade;
 import kz.eospatial.GeoForestry.user.UserService;
 import kz.eospatial.GeoForestry.user.Users;
@@ -66,6 +67,12 @@ public class AdminController {
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     public ResponseEntity<?> addAdmin(@Valid @RequestBody Users admin) {
         return adminFacade.addAdmin(admin);
+    }
+
+    @PatchMapping("/users/{userId}/password")
+    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
+    public ResponseEntity<?> updateUserPassword(@PathVariable Long userId, @Valid @RequestBody UpdatePasswordRequest updatePasswordRequest) {
+        return adminFacade.updateUserPassword(userId, updatePasswordRequest.getNewPassword());
     }
 
     @PatchMapping("/forestries/{id}/regenerateToken")
