@@ -47,6 +47,16 @@ public class UserService implements UserDetailsService {
         return save(user);
     }
 
+    @Transactional
+    public void updatePassword(Long userId, String newPassword) {
+        repository.findById(userId).ifPresent(user -> {
+            String encodedPassword = passwordEncoder.encode(newPassword);
+            user.setPassword(encodedPassword);
+            repository.save(user);
+            logger.info("Password for user with id {} has been updated.", userId);
+        });
+    }
+
 //    @Override
 //    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 //        logger.info("Попытка загрузки пользователя с именем: {}", username);
@@ -60,6 +70,11 @@ public class UserService implements UserDetailsService {
 //                    return new UsernameNotFoundException("Пользователь не найден");
 //                });
 //    }
+
+    public Users findByUsername(String username) {
+        return repository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User with name " + username + " not found"));
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
