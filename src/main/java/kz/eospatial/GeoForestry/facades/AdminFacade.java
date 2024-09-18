@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -42,62 +43,142 @@ public class AdminFacade {
         this.userService = userService;
     }
 
-    public ResponseEntity<?> addForestry(ForestryDto forestryDto) {
+    // Обработка MultipartFile данных
+    public ResponseEntity<Map<String, Object>> addForestry(ForestryDto forestryDto, MultipartFile file) {
         try {
-            AbstractMap.SimpleEntry<ForestryDto, String> result = forestryManagementService.addForestry(forestryDto);
-            ForestryDto createdForestryDto = result.getKey();
-            String token = result.getValue();
+            log.info("Adding new forestry with name: {}", forestryDto.getName());
+            if (file != null && !file.isEmpty()) {
+                log.info("GeoJSON file provided for forestry: {}", file.getOriginalFilename());
+            }
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("forestry", createdForestryDto);
-            response.put("token", token);
-            response.put("message", "Forestry created successfully with token.");
+            // Вызов сервиса для создания лесничества и получения токена
+            AbstractMap.SimpleEntry<ForestryDto, String> result = forestryManagementService.addForestry(forestryDto, file);
 
-            return ResponseEntity.ok(response);
-        } catch (ForestryNameExistsException e) {
-            log.warn("Attempt to add forestry failed, name exists: {}", forestryDto.getName(), e);
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "Conflict", "message",
-                    e.getMessage()));
+            // Формирование ответа
+            return prepareResponse(result);
         } catch (Exception e) {
-            log.error("Error creating forestry: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error",
-                    "Internal server error occurred while adding forestry", "message", e.getMessage()));
+            return handleError(e, forestryDto);
         }
     }
 
+    // Обработка бинарных данных (byte[])
+//    public ResponseEntity<Map<String, Object>> addForestry(ForestryDto forestryDto, byte[] octetFile) {
+//        try {
+//            log.info("Adding new forestry with name: {}", forestryDto.getName());
+//            if (octetFile != null && octetFile.length > 0) {
+//                log.info("GeoJSON file provided as binary data");
+//            }
+//            AbstractMap.SimpleEntry<ForestryDto, String> result = forestryManagementService.addForestry(forestryDto, octetFile);
+//            return prepareResponse(result);
+//        } catch (Exception e) {
+//            return handleError(e, forestryDto);
+//        }
+//    }
 
-    public ResponseEntity<?> updateForestry(Long id, ForestryDto forestryDto) {
-        log.info("Updating forestry with ID: {}", id);
+    // Метод для подготовки успешного ответа
+    private ResponseEntity<Map<String, Object>> prepareResponse(AbstractMap.SimpleEntry<ForestryDto, String> result) {
+        ForestryDto createdForestryDto = result.getKey();
+        String token = result.getValue();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("forestry", createdForestryDto);
+        response.put("token", token);
+        response.put("message", "Forestry created successfully with token.");
+
+        return ResponseEntity.ok(response);
+    }
+
+    // Централизованная обработка ошибок
+    private ResponseEntity<Map<String, Object>> handleError(Exception e, ForestryDto forestryDto) {
+        if (e instanceof ForestryNameExistsException) {
+            log.warn("Attempt to add forestry failed, name exists: {}", forestryDto.getName(), e);
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "Conflict", "message", e.getMessage()));
+        } else {
+            log.error("Error creating forestry: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal server error occurred while adding forestry", "message", e.getMessage()));
+        }
+    }
+
+    // Обновление лесничества
+    public ResponseEntity<Map<String, Object>> updateForestry(Long id, ForestryDto forestryDto, MultipartFile geoJsonFile) {
         try {
-            ForestryDto updatedForestryDto = forestryManagementService.updateForestry(id, forestryDto);
+            log.info("Updating forestry with ID: {}", id);
+
+            // Вызов сервиса для обновления лесничества
+            ForestryDto updatedForestryDto = forestryManagementService.updateForestry(id, forestryDto, geoJsonFile);
+
+            // Формирование успешного ответа
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Forestry updated successfully");
             response.put("forestry", updatedForestryDto);
             return ResponseEntity.ok(response);
         } catch (EntityNotFoundException e) {
             log.warn("Forestry not found for update with ID: {}", id, e);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Not Found", "message", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Not Found", "message", e.getMessage()));
         } catch (Exception e) {
             log.error("Error updating forestry with ID: {}, error: {}", id, e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal server error occurred while updating forestry", "message", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal server error occurred while updating forestry", "message", e.getMessage()));
         }
     }
 
+    // Добавление GeoJSON для лесничества
+    public ResponseEntity<Map<String, Object>> addGeoJsonToForestry(Long id, MultipartFile geoJsonFile) {
+        log.info("Adding GeoJSON for forestry with ID: {}", id);
+        try {
+            // Вызов метода для добавления GeoJSON
+            ForestryDto updatedForestryDto = forestryManagementService.addGeoJsonToForestry(id, geoJsonFile);
+
+            // Формирование успешного ответа
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "GeoJSON added successfully for forestry");
+            response.put("forestry", updatedForestryDto);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            log.warn("Forestry not found with ID: {}", id, e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Not Found", "message", e.getMessage()));
+        } catch (IllegalStateException e) {
+            log.warn("GeoJSON already exists for forestry with ID: {}", id, e);
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "Conflict", "message", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error adding GeoJSON for forestry with ID: {}, error: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal server error", "message", e.getMessage()));
+        }
+    }
+
+    public ResponseEntity<?> deleteForestryGeoJson(Long id) {
+        log.info("Deleting GeoJSON for forestry with ID: {}", id);
+        try {
+            forestryManagementService.deleteForestryGeoJson(id);
+            return ResponseEntity.ok(Map.of("message", "GeoJSON deleted successfully for forestry with ID: " + id));
+        } catch (Exception e) {
+            log.error("Error deleting GeoJSON for forestry with ID: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal server error", "message", e.getMessage()));
+        }
+    }
+
+    // Удаление лесничества
     public ResponseEntity<?> deleteForestryById(Long id) {
         log.info("Deleting forestry with ID: {}", id);
         try {
             boolean isDeleted = forestryManagementService.deleteForestryById(id);
             if (!isDeleted) {
                 log.warn("Forestry not found for deletion with ID: {}", id);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Not Found",
-                        "message", "Forestry not found for deletion with ID: " + id));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Not Found", "message", "Forestry not found for deletion with ID: " + id));
             }
             log.info("Forestry deleted with ID: {}", id);
             return ResponseEntity.ok(Map.of("message", "Forestry deleted successfully"));
         } catch (Exception e) {
             log.error("Error deleting forestry with ID: {}", id, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error",
-                    "Internal server error occurred while deleting forestry", "message", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal server error occurred while deleting forestry", "message", e.getMessage()));
         }
     }
 
@@ -230,7 +311,6 @@ public class AdminFacade {
     }
 
 
-
     public ResponseEntity<?> updateTokenExpirationDate(Long id, TokenUpdateRequest request) {
         log.info("Attempting to update token expiration date for forestry with ID: {}", id);
         try {
@@ -267,7 +347,6 @@ public class AdminFacade {
                             "message", e.getMessage()));
         }
     }
-
 
 
 }

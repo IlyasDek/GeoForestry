@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
+
 @Entity
 public class Forestry {
     @Id
@@ -15,12 +16,15 @@ public class Forestry {
 
     private String region;
     private String mapStyleUrl;
+
     @Column(length = 1000)
     private String boundaries;
     private String center;
+
     private String mapBoxToken;
     private String token;
     private LocalDate tokenExpirationDate;
+
 
     public Forestry(Long id, String name, String region, String mapStyleUrl,
                     String boundaries, String center, String mapBoxToken, String token, LocalDate tokenExpirationDate) {

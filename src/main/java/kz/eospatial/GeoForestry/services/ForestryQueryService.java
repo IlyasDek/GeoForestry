@@ -75,7 +75,6 @@ public class ForestryQueryService {
         } else if (startDate != null) {
             forestries = forestryRepository.findAllByTokenExpirationDate(startDate);
         } else {
-            // Определите, как вы хотите обрабатывать запросы без даты или предоставьте все лесничества
             forestries = new ArrayList<>();
         }
         return forestries.stream()

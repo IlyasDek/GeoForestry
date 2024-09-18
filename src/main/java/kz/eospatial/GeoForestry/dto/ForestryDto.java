@@ -36,18 +36,6 @@ public class ForestryDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate tokenExpirationDate;
 
-    public ForestryDto(Long id, String name, String region, String mapStyleUrl, List<GeoCoordinate> boundaries,
-                       GeoCoordinate center, String mapBoxToken, String token, LocalDate tokenExpirationDate) {
-        this.id = id;
-        this.name = name;
-        this.region = region;
-        this.mapStyleUrl = mapStyleUrl;
-        this.boundaries = boundaries;
-        this.center = center;
-        this.mapBoxToken = mapBoxToken;
-        this.token = token;
-        this.tokenExpirationDate = tokenExpirationDate;
-    }
 
     public ForestryDto(String name, String region, String mapStyleUrl, List<GeoCoordinate> boundaries,
                        GeoCoordinate center, String mapBoxToken, String token, LocalDate tokenExpirationDate) {

@@ -18,16 +18,17 @@ import java.time.LocalDate;
 public class TokenManagementService {
 
     private static final Logger log = LoggerFactory.getLogger(TokenManagementService.class);
-    private final ForestryMapper forestryMapper = ForestryMapper.INSTANCE;
+
     private final ForestryRepository forestryRepository;
     private final TokenService tokenService;
+    private final ForestryMapper forestryMapper;
 
     @Autowired
-    public TokenManagementService(ForestryRepository forestryRepository, TokenService tokenService) {
+    public TokenManagementService(ForestryRepository forestryRepository, TokenService tokenService, ForestryMapper forestryMapper) {
         this.forestryRepository = forestryRepository;
         this.tokenService = tokenService;
+        this.forestryMapper = forestryMapper; // Внедряем ForestryMapper через Spring
     }
-
 
     public String regenerateTokenForForestry(Long id, LocalDate newExpirationDate) {
         Forestry forestry = forestryRepository.findById(id)
@@ -40,13 +41,12 @@ public class TokenManagementService {
         return newToken;
     }
 
-
     public ForestryDto updateTokenExpirationDate(Long id, LocalDate newExpirationDate) {
         Forestry forestry = forestryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Forestry not found with ID: " + id));
         forestry.setTokenExpirationDate(newExpirationDate);
         Forestry updatedForestry = forestryRepository.save(forestry);
         log.info("Updated token expiration date for forestry with ID: {}", id);
-        return forestryMapper.toDto(updatedForestry);
+        return forestryMapper.toDto(updatedForestry); // Используем автоматически внедрённый маппер
     }
 }

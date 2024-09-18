@@ -49,6 +49,7 @@ public class SecurityConfiguration {
                     return corsConfiguration;
                 }))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/forestry/**").permitAll()
                         .requestMatchers("/auth/sign-in").permitAll()
                         .requestMatchers("/api/admin/addAdmin").hasAuthority("ROLE_SUPER_ADMIN")

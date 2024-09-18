@@ -15,7 +15,6 @@ public class TokenService {
     private static final Logger log = LoggerFactory.getLogger(TokenService.class);
     private final ForestryRepository forestryRepository;
 
-    // Убрана аннотация @Autowired
     public TokenService(ForestryRepository forestryRepository) {
         this.forestryRepository = forestryRepository;
     }

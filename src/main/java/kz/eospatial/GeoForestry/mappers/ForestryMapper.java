@@ -4,18 +4,15 @@ import kz.eospatial.GeoForestry.dto.ForestryDto;
 import kz.eospatial.GeoForestry.models.Forestry;
 import kz.eospatial.GeoForestry.models.GeoCoordinate;
 import org.mapstruct.*;
-import org.mapstruct.factory.Mappers;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring", uses = ForestryMapper.class, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface ForestryMapper {
 
-    ForestryMapper INSTANCE = Mappers.getMapper(ForestryMapper.class);
-
-
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "token", ignore = true)
     @Mapping(target = "boundaries", ignore = true)
     @Mapping(target = "center", ignore = true)
@@ -33,11 +30,12 @@ public interface ForestryMapper {
     @AfterMapping
     default void toModelPostMapping(ForestryDto dto, @MappingTarget Forestry entity) {
         // Преобразование List<GeoCoordinate> в строку для сохранения
-        String boundariesAsString = dto.getBoundaries().stream()
-                .map(coord -> coord.getLatitude() + "," + coord.getLongitude())
-                .reduce((acc, coord) -> acc + ";" + coord)
-                .orElse("");
-        entity.setBoundaries(boundariesAsString);
+        if (dto.getBoundaries() != null && !dto.getBoundaries().isEmpty()) {
+            String boundariesAsString = dto.getBoundaries().stream()
+                    .map(coord -> coord.getLatitude() + "," + coord.getLongitude())
+                    .collect(Collectors.joining(";"));
+            entity.setBoundaries(boundariesAsString);
+        }
 
         // Преобразование GeoCoordinate в строку для сохранения
         GeoCoordinate center = dto.getCenter();
